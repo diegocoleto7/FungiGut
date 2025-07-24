@@ -1,0 +1,19 @@
+name: fungigut_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - fastp
+  - bowtie2
+  - python=3.10
+  - bwa
+  - ncbi-datasets-cli
+  - pigz
+  - pandas
+  - aria2
+  - seqkit
+  - conda-forge::r-tidyverse
+  - libdeflate=1.24
+  - r-base=4.4
+  - bioconda::bioconductor-phyloseq
