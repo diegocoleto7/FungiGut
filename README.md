@@ -1,5 +1,20 @@
 # FungiGut
-
+This repository contains a set of Nextflow-based workflows for building genome databases, preprocessing samples and profiling WGS reads from the gut fungal microbiome.
+```
+FungiGut/
+├── resources.nf        # Workflow for downloading and indexing host, bacteria and fungal genomes.
+├── preprocess.nf       # Workflow for quality control filtering and host/bac reads removal.
+├── taxprofiler.nf      # Workflow for alignment and fungal abundance profiling.
+├── bin/                # Auxiliary scripts
+├── assets/             # Example data and lists
+├── FungiGut.yml        # Conda environment
+└── README.md   
+```
+## Instalation
+**1.- Clone the repository:**
+```
+git clone https://github.com/diegocoleto7/FungiGut.git
+```
 | Workflow         | Parameter             | Default                                | Description & Tips                                                  |
 | ---------------- | --------------------- | -------------------------------------- | ------------------------------------------------------------------- |
 | **resources.nf** | `out_dir`             | `${launchDir}/resources`               | Output directory. Change if you need a different location.          |
