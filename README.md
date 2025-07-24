@@ -28,7 +28,7 @@ FungiGut/
 
 - **taxprofiler.nf**  
   - Aligns cleaned reads against the fungal reference database.  
-  - Calculates relative abundances (e.g., TPM, RPKM) with tools like CoverM or MetaPhlAn.  
+  - Calculates relative abundances based on MicoP tool.  
 
 - **bin/**  
   - Helper scripts for results, generate summary reports, etc.  
