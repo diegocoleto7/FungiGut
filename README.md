@@ -45,7 +45,7 @@ FungiGut/
 
 ### 1. Prerequisites
 
-- **Java 8+** (required by Nextflow)  
+- **[Java 17 (or later,up to 24)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)** (required by Nextflow)  
 - **Conda** or **Miniconda** (for dependency management)  
 - **Git** (to clone the repository)
 
