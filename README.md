@@ -1,4 +1,4 @@
-# FungiGut
+# FungiGut :mushroom:
 This repository contains a set of Nextflow-based workflows for building genome databases, preprocessing samples and profiling WGS reads from the gut fungal microbiome.
 ```
 FungiGut/
