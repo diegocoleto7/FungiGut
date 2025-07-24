@@ -14,6 +14,11 @@ FungiGut/
 **1.- Clone the repository:**
 ```
 git clone https://github.com/diegocoleto7/FungiGut.git
+cd FungiGut
+```
+**2.- Create Conda environment**
+```
+conda env create -n fungigut -f FungiGut.yml
 ```
 | Workflow         | Parameter             | Default                                | Description & Tips                                                  |
 | ---------------- | --------------------- | -------------------------------------- | ------------------------------------------------------------------- |
