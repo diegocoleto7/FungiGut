@@ -1,6 +1,10 @@
-# FungiGut :mushroom:
-This repository contains a set of Nextflow-based workflows for building genome databases, preprocessing samples and profiling WGS reads from human gut  microbiome.
-## Repository structure
+# FungiGut 🍄
+
+This repository provides a suite of **Nextflow-based workflows** to build genome databases, preprocess samples, and profile fungal abundance from shotgun metagenomic (WGS) reads of the human gut microbiome.
+
+---
+
+## 📂 Repository Structure
 
 ```
 FungiGut/
@@ -12,25 +16,67 @@ FungiGut/
 ├── FungiGut.yml        # Conda environment
 └── README.md   
 ```
-## Instalation
-**1.- Clone the repository:**
-```
+
+- **resources.nf**  
+  - Downloads reference genomes (human, bacteria, fungi).  
+  - Builds indices for Bowtie2/Minimap2, Kraken2, etc.  
+
+- **preprocess.nf**  
+  - Runs FastQC and Trimmomatic for read quality assessment and trimming.  
+  - Filters out host and bacterial reads using prebuilt indices.  
+
+- **taxprofiler.nf**  
+  - Aligns cleaned reads against the fungal reference database.  
+  - Calculates relative abundances (e.g., TPM, RPKM) with tools like CoverM or MetaPhlAn.  
+
+- **bin/**  
+  - Helper scripts to reformat results, generate summary reports, etc.  
+
+- **assets/**  
+  - Contains a small test dataset and example genome‐list text files.  
+
+- **FungiGut.yml**  
+  - Defines a Conda environment including Nextflow, Java, FastQC, Trimmomatic, Bowtie2, Kraken2, CoverM, MetaPhlAn, and other dependencies.
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Prerequisites
+
+- **Java 8+** (required by Nextflow)  
+- **Conda** or **Miniconda** (for dependency management)  
+- **Git** (to clone the repository)
+
+### 2. Clone the Repository
+
+```bash
 git clone https://github.com/diegocoleto7/FungiGut.git
 cd FungiGut
 ```
-**2.- Create conda environment**
-```
+### 3. Create & Activate the Conda Environment
+
+```bash
 conda env create -n fungigut -f FungiGut.yml
-```
-**3.- Activate environment**
-```
 conda activate fungigut
 ```
+### 4. (Optional) Define a Central Project Directory
+
+To keep multiple projects organized, you can set an environment variable pointing to the FungiGut scripts:
+```bash
+export FUNGI=/path/to/FungiGut
+```
+Then in any project folder:
+```bash
+cd /my/project/folder
+nextflow run $FUNGI/resources.nf   # or preprocess.nf, taxprofiler.nf...
+```
+
 
 | Workflow         | Parameter             | Default                                | Description & Tips                                                  |
 | ---------------- | --------------------- | -------------------------------------- | ------------------------------------------------------------------- |
 | **resources.nf** | `out_dir`             | `${launchDir}/resources`               | Output directory. Change if you need a different location.          |
-|                  | `genome_list`         | `${scriptDir}/assets/species_list.txt` | Path to fungal species list. Edit to add or remove species.         |
+|                  | `genome_list`         | `/assets/species_list.txt`             | Path to fungal species list. Edit to add or remove species.         |
 |                  | `download_host`       | `true`                                 | Download human genome. Set to `false` if already available.         |
 |                  | `download_bacteria`   | `true`                                 | Download bacterial database (UHGG).                                 |
 |                  | `download_fungi`      | `true`                                 | Download fungal genomes.                                            |
