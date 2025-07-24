@@ -12,17 +12,18 @@ FungiGut/
 ├── preprocess.nf       # Workflow for quality control filtering and host/bac reads removal.
 ├── taxprofiler.nf      # Workflow for alignment and fungal abundance profiling.
 ├── bin/                # Auxiliary scripts
-├── assets/             # Example data and lists
+├── assets/             # Fungi species list
 ├── FungiGut.yml        # Conda environment
 └── README.md   
 ```
 
 - **resources.nf**  
-  - Downloads reference genomes (human, bacteria, fungi).  
-  - Builds indices for Bowtie2/Minimap2, Kraken2, etc.  
+  - Downloads genomes (human, bacteria, fungi).
+  - Filter quality on fungi genomes.  
+  - Builds indices for Bowtie2 and BWA.  
 
 - **preprocess.nf**  
-  - Runs FastQC and Trimmomatic for read quality assessment and trimming.  
+  - Runs Fastp for read quality assessment and trimming.  
   - Filters out host and bacterial reads using prebuilt indices.  
 
 - **taxprofiler.nf**  
@@ -30,13 +31,13 @@ FungiGut/
   - Calculates relative abundances (e.g., TPM, RPKM) with tools like CoverM or MetaPhlAn.  
 
 - **bin/**  
-  - Helper scripts to reformat results, generate summary reports, etc.  
+  - Helper scripts for results, generate summary reports, etc.  
 
 - **assets/**  
-  - Contains a small test dataset and example genome‐list text files.  
+  - Contains FungiGut species list.  
 
 - **FungiGut.yml**  
-  - Defines a Conda environment including Nextflow, Java, FastQC, Trimmomatic, Bowtie2, Kraken2, CoverM, MetaPhlAn, and other dependencies.
+  - Defines a Conda environment.
 
 ---
 
