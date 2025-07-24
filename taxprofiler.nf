@@ -12,7 +12,7 @@ params.min_map            = 100
 params.max_ed             = 5
 params.pct_id             = 0.97
 params.read_cutoff        = 1
-params.max_cpus           = 12
+params.cpus               = 6
 
 params.run_alignment      = true
 
@@ -43,7 +43,7 @@ workflow {
 }
 
 process bwa_align {
-    cpus params.max_cpus
+    cpus params.cpus
     publishDir "${params.results_dir}/sam", mode: 'copy'
     tag "$id"
 
