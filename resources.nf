@@ -1,7 +1,7 @@
 nextflow.enable.dsl=2
 
 params.out_dir              = "resources"
-params.genome_list          = "assets/species_list.txt"
+params.genome_list          = "${scriptDir}/assets/species_list.txt"
 params.download_host        = true
 params.download_bacteria    = true
 params.download_fungi       = true
