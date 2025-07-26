@@ -83,7 +83,7 @@ process qc_trimming {
 
 
 process host_filtering {
-    cpus param.cpus
+    cpus params.cpus
     memory "8 GB"
     publishDir "${params.out_dir}/host_filtered", mode: 'link', subDir: true
     tag "$id"
