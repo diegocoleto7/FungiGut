@@ -19,7 +19,7 @@ workflow {
 
     if (params.single_end) {
         Channel
-            .fromPath(["${params.data_dir}/*.fastq.gz","${params.data_dir}/*.fq.gz")
+            .fromPath(["${params.data_dir}/*.fastq.gz","${params.data_dir}/*.fq.gz"])
             .map { file -> tuple(file.baseName.replaceAll(/\.fastq(\.gz)?$/, ''), file) }
             .set{raw}
     } else {
