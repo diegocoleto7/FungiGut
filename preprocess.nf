@@ -121,7 +121,7 @@ process host_filtering {
 
 
 process bac_filtering {
-    cpus param.cpus
+    cpus params.cpus
     memory "8 GB"
     publishDir "${params.out_dir}/bac_filtered", mode: 'link', subDir: true
     tag "$id"
