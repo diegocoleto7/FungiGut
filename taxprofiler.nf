@@ -100,7 +100,7 @@ process generate_rds {
     val abundance_dir
 
     output:
-    path("phyloseq_object.rds")
+    path("*.rds")
 
     script:
     """
