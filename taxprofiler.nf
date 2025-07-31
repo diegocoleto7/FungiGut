@@ -17,12 +17,14 @@ params.cpus               = 6
 params.run_alignment      = true
 
 workflow {
-
     reads = params.single_end ?
         Channel.fromPath("${params.reads_dir}/*_R1.fastq.gz")
                .map { f -> tuple(f.baseName.replaceAll('_R1',''), [f]) }
         :
-        Channel.fromFilePairs("${params.reads_dir}/*_R{1,2}.fastq.gz")
+        Channel.fromFilePairs([
+                        "${params.reads_dir}/*_R{1,2}.fastq.gz",
+                        "${params.reads_dir}/*_R{1,2}.fq.gz",
+                ])
                .ifEmpty { error "Cannot find reads in ${params.reads_dir}!" }
 
     sam_files = params.run_alignment ?
@@ -34,12 +36,13 @@ workflow {
 
 
     abundance = compute_abundance(sam_files)
-    
-    abundance_dir = Channel
-        .value("${params.results_dir}/abundance_txt")
 
-    rds = generate_rds(abundance_dir)
+    done_signal = abundance
+        .map { id, txt -> txt }
+        .collect()
+        .map { "${params.results_dir}/abundance_txt" }
 
+    rds = generate_rds(done_signal)
 }
 
 process bwa_align {
