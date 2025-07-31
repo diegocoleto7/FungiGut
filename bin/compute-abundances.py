@@ -24,7 +24,7 @@ def find_taxid(tag):
             return sp
     return tag
 
-def ids2info(infofile):
+def load_accession_info(infofile):
     acc2info, clade2gi, lin2len = {}, {}, {}
     with open(infofile, 'r') as infile:
         for line in infile:
@@ -59,55 +59,56 @@ def filter_line(args, splits):
     return False
 
 def compute_abundances(args, samfile, acc2info, clade2gi, lin2len):
-    infile = open(samfile, 'r')
-    ids2abs, clade2abs = {}, {}
-    multimapped = {}
-    prev_read_num, prev_tag, prev_count, ignore = '', '', 1.0, False
+    with open(samfile, 'r') as infile:
+        ids2abs, clade2abs, clade2ids = {}, {}, {}
+        multimapped = {}
+        prev_read, prev_tag, prev_count, ignore = '', '', 1.0, False
 
-    for line in infile:
-        if line.startswith('@'):
-            continue
-        splits = line.strip().split('\t')
-        if filter_line(args, splits):
-            continue
-        tag = find_taxid(splits[2])
-        if tag == '*':
-            continue
-        read_num = splits[0]
-        if read_num == prev_read_num and tag != prev_tag:
-            ignore = True
-            multimapped.setdefault(read_num, []).append(prev_tag)
-            prev_tag = tag
-        else:
-            if prev_read_num and not ignore:
-                ids2abs[prev_tag] = ids2abs.get(prev_tag, 0.0) + prev_count
-            elif ignore:
-                multimapped[prev_read_num].append(prev_tag)
-            prev_read_num, prev_tag, prev_count, ignore = read_num, tag, 1.0, False
-    infile.close()
+        for line in infile:
+            if line.startswith('@'):
+                continue
+            splits = line.strip().split('\t')
+            if filter_line(args, splits):
+                continue
+            tag = find_taxid(splits[2])
+            if tag == '*':
+                continue
+            read_id = splits[0]
+            if read_id == prev_read and tag != prev_tag:
+                ignore = True
+                multimapped.setdefault(read_id, []).append(prev_tag)
+                prev_tag = tag
+            else:
+                if prev_read and not ignore:
+                    ids2abs[prev_tag] = ids2abs.get(prev_tag, 0.0) + prev_count
+                elif ignore:
+                    multimapped.setdefault(prev_read, []).append(prev_tag)
+                prev_read, prev_tag, prev_count, ignore = read_id, tag, 1.0, False
 
-    if prev_read_num and not ignore:
-        ids2abs[prev_tag] = ids2abs.get(prev_tag, 0.0) + prev_count
-    elif ignore:
-        multimapped[read_num].append(prev_tag)
+        if prev_read and not ignore:
+            ids2abs[prev_tag] = ids2abs.get(prev_tag, 0.0) + prev_count
+        elif ignore:
+            multimapped.setdefault(prev_read, []).append(prev_tag)
 
-    clade2ids = {}
-    for taxid in ids2abs:
+    for taxid in list(ids2abs):
+        if taxid not in acc2info:
+            ids2abs.pop(taxid, None)
+            continue
         clade = acc2info[taxid][2]
         clade2abs[clade] = clade2abs.get(clade, 0.0) + ids2abs[taxid]
         clade2ids.setdefault(clade, []).append(taxid)
 
     for clade in list(clade2abs):
         if clade2abs[clade] < args.read_cutoff:
-            for taxid in clade2ids[clade]:
-                ids2abs.pop(taxid, None)
+            for tid in clade2ids.get(clade, []):
+                ids2abs.pop(tid, None)
             clade2abs.pop(clade)
         elif not args.raw_counts:
-            clade2abs[clade] /= lin2len[clade]
+            clade2abs[clade] /= lin2len.get(clade, 1.0)
 
     added = {}
-    for read, tags in multimapped.items():
-        options = {t: ids2abs[t] for t in tags if t in ids2abs}
+    for read_id, tags in multimapped.items():
+        options = {t: ids2abs[t] for t in tags if t in ids2abs and t in acc2info}
         total = sum(options.values())
         if not total:
             continue
@@ -120,23 +121,26 @@ def compute_abundances(args, samfile, acc2info, clade2gi, lin2len):
             randnum -= frac
 
     for key, val in added.items():
+        if key not in acc2info:
+            continue
         clade = acc2info[key][2]
         if args.raw_counts:
             clade2abs[clade] += val
         else:
-            clade2abs[clade] += val / lin2len[clade]
+            clade2abs[clade] += val / lin2len.get(clade, 1.0)
 
     if not args.raw_counts:
         total_ab = sum(clade2abs.values())
-        for clade in clade2abs:
-            clade2abs[clade] *= 100.0 / total_ab
+        if total_ab:
+            for clade in clade2abs:
+                clade2abs[clade] *= 100.0 / total_ab
 
     results = {}
     for clade, val in clade2abs.items():
         taxa = clade.split('|')
         snames = [clade2gi.get(t, '') for t in taxa]
         results[clade] = [snames[-1], 'species', '|'.join(snames), clade, val]
-        for i in range(len(taxa)-1):
+        for i in range(len(taxa) - 1):
             level = '|'.join(taxa[:i+1])
             if level in results:
                 results[level][-1] += val
@@ -149,28 +153,23 @@ def main():
     if not 0.0 <= args.pct_id <= 1.0:
         sys.exit('Error: --pct_id must be between 0.0 and 1.0')
     samfiles = [args.sam] if args.sam.endswith('.sam') else [l.strip() for l in open(args.sam)]
-    acc2info, clade2gi, lin2len = ids2info(args.accession_info)
-    results = {}
-
+    acc2info, clade2gi, lin2len = load_accession_info(args.accession_info)
+    combined = {}
     for sam in samfiles:
         res = compute_abundances(args, sam, acc2info, clade2gi, lin2len)
-        for clade in res:
-            if clade in results:
-                results[clade][-1] += res[clade][-1]
-            else:
-                results[clade] = res[clade]
-
+        for clade, values in res.items():
+            combined[clade] = combined.get(clade, values)
+            if clade in combined:
+                combined[clade][-1] += values[-1]
     lev_res = {i: [] for i in range(len(RANKS))}
-    for clade, vals in results.items():
+    for clade, vals in combined.items():
         vals[-1] /= len(samfiles)
         lev_res[len(clade.split('|')) - 1].append(vals)
-
     with open(args.output, 'w') as out:
         header = 'READ_COUNT' if args.raw_counts else 'PERCENTAGE'
         out.write(f'@@TAXID\tRANK\tTAXPATH\tTAXPATHSN\t{header}\n')
         for i in range(len(RANKS)):
-            lines = sorted(lev_res[i], key=lambda x: -x[-1])
-            for line in lines:
+            for line in sorted(lev_res[i], key=lambda x: -x[-1]):
                 if args.raw_counts:
                     line[-1] = int(line[-1])
                 out.write('\t'.join(map(str, line)) + '\n')
