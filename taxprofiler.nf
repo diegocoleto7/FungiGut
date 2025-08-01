@@ -88,7 +88,8 @@ process compute_abundance {
         --min_map ${params.min_map} \\
         --max_ed ${params.max_ed} \\
         --pct_id ${params.pct_id} \\
-        --read_cutoff ${params.read_cutoff}
+        --read_cutoff ${params.read_cutoff} \\
+        --raw_counts
     """
 }
 
