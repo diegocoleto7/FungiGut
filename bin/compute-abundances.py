@@ -158,8 +158,9 @@ def main():
     for sam in samfiles:
         res = compute_abundances(args, sam, acc2info, clade2gi, lin2len)
         for clade, values in res.items():
-            combined[clade] = combined.get(clade, values)
-            if clade in combined:
+            if clade not in combined:
+                combined[clade] = values[:]
+            else:
                 combined[clade][-1] += values[-1]
     lev_res = {i: [] for i in range(len(RANKS))}
     for clade, vals in combined.items():
