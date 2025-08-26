@@ -13,7 +13,7 @@ params.max_ed             = 5
 params.pct_id             = 0.97
 params.read_cutoff        = 1
 params.cpus               = 6
-
+params.raw_counts         = false
 params.run_alignment      = true
 
 workflow {
@@ -80,17 +80,29 @@ process compute_abundance {
     tuple val(id), path("${id}.txt")
 
     script:
-    """
-    compute-abundances.py \\
-        ${sam_file} \\
-        --accession_info ${params.accession_info} \\
-        --output ${id}.txt \\
-        --min_map ${params.min_map} \\
-        --max_ed ${params.max_ed} \\
-        --pct_id ${params.pct_id} \\
-        --read_cutoff ${params.read_cutoff} \\
-        --raw_counts
-    """
+    if (params.raw_counts)
+        """
+        compute-abundances.py \\
+            ${sam_file} \\
+            --accession_info ${params.accession_info} \\
+            --output ${id}.txt \\
+            --min_map ${params.min_map} \\
+            --max_ed ${params.max_ed} \\
+            --pct_id ${params.pct_id} \\
+            --read_cutoff ${params.read_cutoff} \\
+            --raw_counts
+        """
+    else
+        """
+        compute-abundances.py \\
+            ${sam_file} \\
+            --accession_info ${params.accession_info} \\
+            --output ${id}.txt \\
+            --min_map ${params.min_map} \\
+            --max_ed ${params.max_ed} \\
+            --pct_id ${params.pct_id} \\
+            --read_cutoff ${params.read_cutoff} \\
+        """
 }
 
 process generate_rds {
