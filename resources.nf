@@ -3,24 +3,22 @@ nextflow.enable.dsl=2
 params.out_dir              = "resources"
 params.genome_list          = "assets/species_list.txt"
 params.download_host        = true
-params.download_bacteria    = true
-params.download_fungi       = true
-params.make_accession_info  = false
-params.threads           = 10
+params.download_prokaryote  = true
+params.update_db            = false
+params.make_accession_info  = true
+params.threads              = 8
 
 workflow {
 
     if (params.download_host) {
-        host_fasta = download_human_genome()
-        index_human_bowtie2(host_fasta)
+        host_index = download_human_index()
     }
 
-    if (params.download_bacteria) {
-        bact_fasta = download_bacteria_genome()
-        index_bact_bowtie2(bact_fasta)
+    if (params.download_prokaryote) {
+        bact_index = download_prokaryote_index()
     }
 
-    if (params.download_fungi) {
+    if (params.update_db) {
         fungi = download_fungi_genomes(file(params.genome_list))
 
         index_fungi(fungi.genomes)
@@ -30,71 +28,58 @@ workflow {
         if (params.make_accession_info) {
             make_accession_info(fungi_fna)
         }
+
+    } else {
+        fungigutdb = download_fungigutdb()
+
     }
 }
 
-process download_human_genome {
-    cpus 2
-    publishDir "${params.out_dir}/Host", mode: 'copy'
+process download_human_index {
+    publishDir "${params.out_dir}/Bowtie2_Indexes", mode: 'link'
 
     output:
-    path("human.fna")
+    path("Host")
 
     script:
     """
-    aria2c -x 8 -s 8 -o human.fna.gz https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/GRCh38.primary_assembly.genome.fa.gz
-    pigz -d -f human.fna.gz
-
+    aria2c -x 8 -s 8 -o Host.tar.gz https://zenodo.org/records/17581472/files/Host.tar.gz?download=1
+    tar -xzf Host.tar.gz
+    rm -f Host.tar.gz
     """
 }
 
-process index_human_bowtie2 {
-    cpus params.threads
-    publishDir "${params.out_dir}/Bowtie2_Indexes/Host", mode: 'copy'
 
-    input:
-    path fasta_file
+process download_prokaryote_index {
+    publishDir "${params.out_dir}/Bowtie2_Indexes", mode: 'link'
 
     output:
-    path("${fasta_file.simpleName}.*")
+    path("UHGG")
 
     script:
     """
-    bowtie2-build --threads ${task.cpus} "${fasta_file}" "${fasta_file.simpleName}"
+    aria2c -x 8 -s 8 -o UHGG.tar.gz https://zenodo.org/records/17581472/files/UHGG.tar.gz?download=1
+    tar -xzf UHGG.tar.gz
+    rm -f UHGG.tar.gz    
     """
 }
 
-process download_bacteria_genome {
-    publishDir "${params.out_dir}/UHGG", mode: 'copy'
+process download_fungigutdb {
+    publishDir "${params.out_dir}", mode: 'link'
 
     output:
-    path("library.fna")
+    path("FungiGut_db")
 
     script:
     """
-    aria2c -x 8 -s 8 -o library.fna https://ftp.ebi.ac.uk/pub/databases/metagenomics/mgnify_genomes/human-gut/v2.0.2/kraken2_db_uhgg_v2.0.2/library/library.fna
-
-    """
-}
-
-process index_bact_bowtie2 {
-    cpus params.threads
-    publishDir "${params.out_dir}/Bowtie2_Indexes/UHGG", mode: 'copy'
-
-    input:
-    path fasta_file
-
-    output:
-    path("${fasta_file.simpleName}.*")
-
-    script:
-    """
-    bowtie2-build --threads ${task.cpus} "${fasta_file}" "${fasta_file.simpleName}"
+    aria2c -x 8 -s 8 -o FungiGut_db.tar.gz https://zenodo.org/records/17581472/files/FungiGut_db.tar.gz?download=1
+    tar -xzf FungiGut_db.tar.gz
+    rm -f FungiGut_db.tar.gz
     """
 }
 
 process download_fungi_genomes {
-    publishDir "${params.out_dir}/FungiGut_db", mode: 'copy'
+    publishDir "${params.out_dir}/FungiGut_db", mode: 'link'
 
     input:
     path species_list
@@ -114,7 +99,7 @@ process download_fungi_genomes {
 }
 
 process index_fungi {
-    publishDir "${params.out_dir}/FungiGut_db", mode: 'copy'
+    publishDir "${params.out_dir}/FungiGut_db", mode: 'link'
 
     input:
     path genome_dir
@@ -134,7 +119,7 @@ process make_accession_info {
     cpus 4
     memory '4 GB'
 
-    publishDir "${params.out_dir}/FungiGut_db", mode: 'copy'
+    publishDir "${params.out_dir}/FungiGut_db", mode: 'link'
 
     input:
     path(fasta_file)
