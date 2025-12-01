@@ -224,3 +224,12 @@ nextflow run $FUNGI/taxprofiler.nf \
   --min_map <> --max_ed <> --pct_id <> --read_cutoff <> \
   --cpus 12
 ```
+---
+
+## Reproducibility & Data Availability
+
+- **Analysis scripts for the FungiGut paper**  
+  https://github.com/diegocoleto7/FungiGut-Paper
+
+- **FungiGutDB v1.0 reference database**  
+  https://doi.org/10.5281/zenodo.17581472
