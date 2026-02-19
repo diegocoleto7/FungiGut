@@ -74,7 +74,7 @@ process qc_trimming {
         fastp -i ${reads[0]} -I ${reads[1]} \
             -o ${id}_filtered_R1.fastq.gz -O ${id}_filtered_R2.fastq.gz\
             --json ${id}_fastp.json --html ${id}.html \
-            --trim_front1 ${params.trim_front} -l ${params.min_length} \
+            --cut_front -l ${params.min_length} \
             -3 -M ${params.quality_threshold} -r -w ${task.cpus}
         """
 }
