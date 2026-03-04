@@ -43,7 +43,10 @@ process download_human_index {
 
     script:
     """
-    aria2c -x 8 -s 8 -o Host.tar.gz https://zenodo.org/records/17581472/files/Host.tar.gz?download=1
+    wget --tries=5 --retry-connrefused --waitretry=15 \
+         --read-timeout=60 --timeout=60 \
+         -O Host.tar.gz \
+         "https://zenodo.org/records/17581472/files/Host.tar.gz?download=1"
     tar -xzf Host.tar.gz
     rm -f Host.tar.gz
     """
@@ -58,7 +61,10 @@ process download_prokaryote_index {
 
     script:
     """
-    aria2c -x 8 -s 8 -o UHGG.tar.gz https://zenodo.org/records/17581472/files/UHGG.tar.gz?download=1
+    wget --tries=5 --retry-connrefused --waitretry=15 \
+         --read-timeout=60 --timeout=60 \
+         -O UHGG.tar.gz \
+         "https://zenodo.org/records/17581472/files/UHGG.tar.gz?download=1"
     tar -xzf UHGG.tar.gz
     rm -f UHGG.tar.gz    
     """
@@ -72,7 +78,10 @@ process download_fungigutdb {
 
     script:
     """
-    aria2c -x 8 -s 8 -o FungiGut_db.tar.gz https://zenodo.org/records/17581472/files/FungiGut_db.tar.gz?download=1
+    wget --tries=5 --retry-connrefused --waitretry=15 \
+         --read-timeout=60 --timeout=60 \
+         -O FungiGut_db.tar.gz \
+         "https://zenodo.org/records/17581472/files/FungiGut_db.tar.gz?download=1"
     tar -xzf FungiGut_db.tar.gz
     rm -f FungiGut_db.tar.gz
     """
