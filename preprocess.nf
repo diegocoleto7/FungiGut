@@ -82,6 +82,7 @@ process qc_trimming {
 
 process host_filtering {
     cpus params.cpus
+    scratch true
     publishDir "${params.out_dir}/host_filtered", mode: 'link', subDir: true
     tag "$id"
 
@@ -121,6 +122,7 @@ process host_filtering {
 
 process bac_filtering {
     cpus params.cpus
+    scratch true
     publishDir "${params.out_dir}/bac_filtered", mode: 'link', subDir: true
     tag "$id"
 
