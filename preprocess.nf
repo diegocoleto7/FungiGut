@@ -101,20 +101,24 @@ process host_filtering {
         """
         mkdir -p "log"
 
-        bowtie2 -x ${params.human_index}/human \
+        bowtie2 -mm \
+            -x ${params.human_index}/human \
             -U ${reads[0]} \
             --un-gz ${id}_hostclean_R1.fastq.gz \
-            -p ${task.cpus} -S /dev/null \
+            -p ${task.cpus} \
+            -S /dev/null \
             2> $log_out
         """
     else
         """
         mkdir -p "log"
 
-        bowtie2 -x ${params.human_index}/human \
+        bowtie2 -mm \
+            -x ${params.human_index}/human \
             -1 ${reads[0]} -2 ${reads[1]} \
             --un-conc-gz ${id}_hostclean_R%.fastq.gz \
-            -p ${task.cpus} -S /dev/null \
+            -p ${task.cpus} \
+            -S /dev/null \
             2> $log_out
         """
 }
@@ -142,20 +146,24 @@ process bac_filtering {
         """
         mkdir -p "log"
 
-        bowtie2 -x ${params.bac_index}/library \
+        bowtie2 -mm \
+            -x ${params.bac_index}/library \
             -U ${reads[0]} \
             --un ${id}_bacclean_R1.fastq.gz \
-            -p ${task.cpus} -S /dev/null \
+            -p ${task.cpus} \
+            -S /dev/null \
             2> $log_out
         """
     else
         """
         mkdir -p "log"
 
-        bowtie2 -x ${params.bac_index}/library \
+        bowtie2 -mm \
+            -x ${params.bac_index}/library \
             -1 ${reads[0]} -2 ${reads[1]} \
             --un-conc-gz ${id}_bacclean_R%.fastq.gz \
-            -p ${task.cpus} -S /dev/null \
+            -p ${task.cpus} 
+            -S /dev/null \
             2> $log_out
         """
 }
