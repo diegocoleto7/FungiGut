@@ -162,7 +162,7 @@ process bac_filtering {
             -x ${params.bac_index}/library \
             -1 ${reads[0]} -2 ${reads[1]} \
             --un-conc-gz ${id}_bacclean_R%.fastq.gz \
-            -p ${task.cpus} 
+            -p ${task.cpus} \
             -S /dev/null \
             2> $log_out
         """
