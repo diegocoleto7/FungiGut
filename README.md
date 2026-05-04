@@ -129,7 +129,6 @@ params.cpus              = 8
 params.single_end        = false
 params.data_dir          = "data"
 
-params.trim_front        = 5
 params.min_length        = 50
 params.quality_threshold = 20
 ```
